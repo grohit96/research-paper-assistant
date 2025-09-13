@@ -30,6 +30,7 @@ This bundles backend + frontend into one container.
 
 # Clone the repo
 git clone https://github.com/grohit96/research-paper-assistant.git
+
 cd research-paper-assistant
 
 # Build the image
