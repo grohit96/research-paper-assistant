@@ -9,6 +9,7 @@ function App() {
 
   const handleUpload = async () => {
     if (!file) return alert("Please select a PDF first");
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -17,9 +18,19 @@ function App() {
         method: "POST",
         body: formData,
       });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.detail || "Upload failed");
+      }
+
       const data = await res.json();
       console.log("Upload response:", data);
-      alert(`PDF uploaded successfully. ${data.chunks_indexed} chunks indexed.`);
+
+      // ✅ prevent "undefined"
+      const chunksIndexed = data?.chunks_indexed ?? 0;
+
+      alert(`PDF uploaded successfully. ${chunksIndexed} chunks indexed.`);
     } catch (err) {
       console.error("Upload error:", err);
       alert("Upload failed. Check backend logs.");
@@ -27,7 +38,8 @@ function App() {
   };
 
   const handleAsk = async () => {
-    if (!question) return alert("Please enter a question");
+    if (!question.trim()) return alert("Please enter a question");
+
     setLoading(true);
     try {
       const res = await fetch("http://127.0.0.1:8000/ask", {
@@ -35,10 +47,16 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
       });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.detail || "Query failed");
+      }
+
       const data = await res.json();
       console.log("Ask response:", data);
 
-      // Defensive checks
+      // ✅ Always safe assignment
       setAnswer(data?.answer || "No answer received.");
       setSources(Array.isArray(data?.contexts) ? data.contexts : []);
     } catch (err) {
@@ -55,6 +73,7 @@ function App() {
         📑 Research Paper Assistant
       </h1>
 
+      {/* File Upload */}
       <input
         type="file"
         accept="application/pdf"
@@ -68,6 +87,7 @@ function App() {
         Upload PDF
       </button>
 
+      {/* Question Input */}
       <input
         type="text"
         placeholder="Ask a question..."
@@ -82,8 +102,10 @@ function App() {
         Ask
       </button>
 
+      {/* Loading Spinner */}
       {loading && <p className="mt-4 text-gray-600">Loading...</p>}
 
+      {/* Answer + Sources */}
       {answer && !loading && (
         <div className="mt-6 p-4 bg-white shadow rounded w-full max-w-2xl">
           <h2 className="font-bold">Answer:</h2>
