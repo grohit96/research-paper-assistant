@@ -44,7 +44,7 @@ docker run -p 8000:8000 research-assistant
 
 You’ll see the web app (upload PDFs, ask questions).
 
-Option 2: Run Locally without Docker (Dev Mode)
+**Option 2: Run Locally without Docker (Dev Mode)**
 
 Run backend & frontend separately.
 
